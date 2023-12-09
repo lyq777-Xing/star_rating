@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+	<script src='./dist/sql-wasm.js'></script>
+	<script src="./dist/sql-asm.js"></script>
+	<script>
+
+	</script>
+</head>
+<body>
+    <form style="width: 60%;margin: 150px auto;">
+        <fieldset>登录</legend>
+        <br>
+        <label>用户名：</label>
+        <input type="text" name="user" required id="user">
+        <br>
+        <label>密码：</label>
+        <input type="text" name="pwd" required id="pwd">
+        <br>
+        <input type="button" value="登录" onclick="login()">
+        </fieldset>
+    </form>
+</body>
+<script>
+	function login() {
+		const username = document.getElementById("user").value;
+		const password = document.getElementById("pwd").value;
+		// console.log(username);
+		if(username != "" && password != ""){
+			config = {
+				locateFile: filename => `/dist/${filename}`
+			}
+			initSqlJs(config).then(function(SQL){
+				const db = new SQL.Database();
+				db.run("CREATE TABLE user (name, password);");
+				db.run("INSERT INTO user VALUES (?,?), (?,?)", ["admin","123456","user","123456"]);
+				const stmt = db.prepare("SELECT * FROM user");
+				while(stmt.step()) { //
+					const row = stmt.getAsObject();
+					console.log(row);
+					console.log('Here is a row: ' + JSON.stringify(row));
+					if(username == row.name && password == row.password){
+						console.log("success");
+						window.open("index.html?username="+username);
+						f = 1;
+					}
+				}
+			});
+			console.log("login....");
+		}
+	}
+</script>
+</html>
